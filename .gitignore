@@ -30,6 +30,7 @@
 /var/config/tag-manager.php
 /var/config/reports.php
 
+/cache
 
 /public/var/
 /public/sitemap*.xml
