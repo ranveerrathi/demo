@@ -59,7 +59,10 @@ services:
         resource: '../src/Command/*'
         tags: [ 'console.command' ]
 
-
+    App\EventListener\ConvertLanguageListener:
+        tags:
+            - { name: kernel.event_listener, event: pimcore.dataobject.preAdd, method: onPreAddAndUpdate }
+            - { name: kernel.event_listener, event: pimcore.dataobject.preUpdate, method: onPreAddAndUpdate }
 
     # Example custom templating helper
     # App\Templating\Helper\Example:
