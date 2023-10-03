@@ -7,8 +7,14 @@ use Exception;
 use Pimcore\Event\Model\DataObjectEvent;
 use Pimcore\Log\ApplicationLogger;
 use Pimcore\Model\DataObject;
+use Pimcore\Model\DataObject\Advisory;
+use Pimcore\Model\DataObject\Category;
 use Pimcore\Model\DataObject\ClassDefinition;
+use Pimcore\Model\DataObject\Crop;
+use Pimcore\Model\DataObject\Problem;
 use Pimcore\Model\DataObject\Product;
+use Pimcore\Model\DataObject\Stage;
+use Pimcore\Model\DataObject\State;
 use Pimcore\Tool;
 
 class ConvertLanguageListener
@@ -16,7 +22,16 @@ class ConvertLanguageListener
     public function onPreAddAndUpdate(DataObjectEvent $e)
     {
         $object = $e->getObject();
-        if ($object  instanceof Product) {
+        if (
+            $object  instanceof Product  ||
+            $object  instanceof Advisory ||
+            $object  instanceof Stage    ||
+            $object  instanceof State    ||
+            $object  instanceof Category ||
+            $object  instanceof Crop     ||
+            $object  instanceof Problem
+        
+        ) {
             $versions = $object->getVersions();
             $priviousObject = null;
             if ($versions && count($versions) > 1) {
