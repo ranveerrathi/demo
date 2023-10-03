@@ -5,13 +5,107 @@ pimcore:
       type: "state_machine"
       supports:
         - \Pimcore\Model\DataObject\Product
-        - \Pimcore\Model\DataObject\Advisory
       initial_markings: new
-
       places:
         new:
           label: "new"
           title: "Product Magic did not start"
+          color: "#3572b0"
+          colorInverted: true
+          permissions:
+            - publish: false
+              unpublish: false
+              save: true
+              delete: false
+        edit:
+          label: "edit"
+          title: "Edit"
+          color: "#3572b0"
+          colorInverted: true
+          permissions:
+            - publish: false
+              unpublish: false
+              save: true
+              delete: false
+        review:
+          label: "review"
+          title: "Review"
+          color: "#3572b0"
+          colorInverted: true
+          permissions:
+            - publish: false
+              unpublish: false
+              save: false
+              delete: false
+        readyToPublish:
+          label: "readyToPublish"
+          title: "readyToPublish"
+          color: "#3572b0"
+          colorInverted: true
+          permissions:
+            - publish: false
+              unpublish: false
+              save: false
+              delete: false
+        complete:
+          label: "complete"
+          title: "Complete"
+          color: "#3572b0"
+          colorInverted: true
+          permissions:
+            - publish: false
+              unpublish: false
+              save: false
+              delete: false
+      transitions:
+        start_work:
+          from: "new"
+          to: "edit"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_CREATOR' in role_names)
+          options:
+            label: "Start Work"
+        sent_to_reviewer:
+          from: "edit"
+          to: "review"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_CREATOR' in role_names)
+          options:
+            label: "Send To Reviewer"
+        sent_to_publish:
+          from: "review"
+          to: "readyToPublish"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_REVIEWER' in role_names)
+          options:
+            label: "Send To Publisher"
+        rejected:
+          from: "review"
+          to: "edit"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_REVIEWER' in role_names)
+          options:
+            label: "Recjected"
+        published: 
+          from: "readyToPublish"
+          to: "complete"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_PUBLISHER' in role_names)
+          options:
+            label: "published"
+            changePublishedState: force_published
+        back_to_edit:
+          from: "complete"
+          to: "edit"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_PUBLISHER' in role_names)
+          options:
+            label: "Back To Edit"
+            changePublishedState: force_unpublished
+    advisory_workflow:
+      label: "Simple Advisory Workflow"
+      type: "state_machine"
+      supports:
+        - \Pimcore\Model\DataObject\Advisory
+      initial_markings: new
+      places:
+        new:
+          label: "new"
+          title: "Advisory new"
           color: "#3572b0"
           colorInverted: true
           permissions:
@@ -53,27 +147,32 @@ pimcore:
         start_work:
           from: "new"
           to: "edit"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_CREATOR' in role_names)
           options:
             label: "Start Work"
-        sent_to_review:
+        sent_to_reviewer:
           from: "edit"
           to: "review"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_CREATOR' in role_names)
           options:
-            label: "Send To Review"
-        approve:
+            label: "Send To Reviewer"
+        rejected:
+          from: "review"
+          to: "edit"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_REVIEWER' in role_names)
+          options:
+            label: "Recjected"
+        published: 
           from: "review"
           to: "complete"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_REVIEWER' in role_names)
           options:
-            label: "Approved"
+            label: "published"
             changePublishedState: force_published
         back_to_edit:
           from: "complete"
           to: "edit"
+          guard: is_fully_authenticated() and ('ROLE_PIMCORE_ADMIN' in role_names or 'ROLE_REVIEWER' in role_names)
           options:
             label: "Back To Edit"
             changePublishedState: force_unpublished
-        rejected:
-          from: "review"
-          to: "edit"
-          options:
-            label: "Recjected"
